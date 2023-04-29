@@ -19,14 +19,14 @@ print("Loading Face Recognizer...")
 embedder = cv2.dnn.readNetFromTorch("openface_nn4.small2.v1.t7")
 
 # load the actual face recognition model along with the label encoder
-recognizer = pickle.loads(open("output/recognizer.pickle", "rb").read())
+recognizer = pickle.loads(open("output/recognizer", "rb").read())
 le = pickle.loads(open("output/le.pickle", "rb").read())
 
 # initialize the video stream, then allow the camera sensor to warm up
 print("Starting Video Stream...")
 vs = VideoStream(src=0).start()
 time.sleep(2.0)
-
+print(vs)
 # start the FPS throughput estimator
 fps = FPS().start()
 
@@ -78,9 +78,12 @@ while True:
 			j = np.argmax(preds)
 			proba = preds[j]
 			name = le.classes_[j]
-
+			# print(proba)
 			# draw the bounding box of the face along with the associated probability
-			text = "{}: {:.2f}%".format(name, proba * 100)
+			if(proba > 0.55):
+				text = "{}: {:.2f}%".format(name, proba * 100)
+			else:
+				text = "{}: {:.2f}%".format("unknown", (1 - proba) * 100)
 			y = startY - 10 if startY - 10 > 10 else startY + 10
 			cv2.rectangle(frame, (startX, startY), (endX, endY),
 				(0, 0, 255), 2)
